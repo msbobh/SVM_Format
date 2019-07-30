@@ -2,24 +2,30 @@
 using System.IO;
 using mystrings;
 
+
 namespace Functions
 {
     class HelperFunctions
     {
-        static public void Reformatdata(string matrix, string[] labels, string fname, int vectorlength)
+        static public int Reformatdata(string matrix, string labelfilename, string fname, int vectorlength)
         
-        /* The pair <index>:<value> gives a feature (attribute) value: <index> is
-           an integer starting from 1 and <value> is a real number. The only
-           exception is the precomputed kernel, where <index> starts from 0; see
-           the section of precomputed kernels. Indices must be in ASCENDING
-           order.*/
+        /* 
+         * Each row begins with a label (-1 | 0)
+         * The pair <index>:<value> defines a feature (attribute) value: <index> is
+         * an integer starting from 1 and <value> can be a real number. The only
+         * exception is the precomputed kernel, where <index> starts from 0; see
+         * the section of precomputed kernels. Indices must be in ASCENDING
+         *  order.
+         */
         {
             // Local variables
             int labelindex = 0;
             string[] data = new string[vectorlength - 1];
-            string[] build = new string[vectorlength];
+
             string compressed; // used to hold the vector after stripping out the spaces
             data = File.ReadAllLines(matrix); // Read in training data
+            string[] Labels = File.ReadAllLines(labelfilename);
+            
 
             // Create the output file
             StreamWriter outfile = null;
@@ -32,7 +38,11 @@ namespace Functions
 
             foreach (var row in data)   // Process one row at a time
             {
-                if (labels[labelindex] == "0")  // LibSVM maps 0's to -1 and 1's to 1
+                /* 
+                 * label is the first entry in each row
+                 */
+                 
+                if (Labels[labelindex] == "0")  // LibSVM maps 0's to -1 and 1's to 1
                 {
                     outfile.Write("-1 ");
                 }
@@ -41,9 +51,10 @@ namespace Functions
                     outfile.Write("1 ");
                 }
                 // Write out the label at the beginning of the row, then strip out spaces and reduce the vector by a factor of 2
+                //compressed = row;
+                compressed = row.Replace(" ", "");
                 for (int i = 1; i <= (vectorlength - 1) / 2; i++)
                 {
-                    compressed = row.Replace(" ", "");
                     outfile.Write("{0}:{1} ", i, compressed[i]); // step through the row and add index and ":"
                 }
                 outfile.WriteLine();
@@ -51,7 +62,7 @@ namespace Functions
 
             }
             outfile.Close();
-            return;
+            return labelindex;
         } // Done procecssing rows
 
         static public int SampleSize(string fname)
@@ -106,5 +117,20 @@ namespace Functions
             return SVMFormat;
         }
         
+        static public bool CheckLabel (string filename)
+        {
+            bool success = false;
+            var testlabels = File.ReadAllLines(filename);
+            foreach (var row in testlabels)
+            {
+                if ((row != "0" && row != "1"))
+                {
+                    Console.WriteLine("Label file in incorrect format");
+                    //System.Environment.Exit(1);
+                }
+            }
+            success = true;
+            return success;
+        }
     }
 }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using mystrings;
 using Functions;
@@ -13,7 +9,9 @@ namespace SVMFormat
     {
         static void Main(string[] args)
         {
-            
+
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
             int vectorlength; // number of features
            
             int numberofArgs = args.Length;
@@ -37,7 +35,7 @@ namespace SVMFormat
             outputfile = inputmatrix.Replace(".mat", ".svm");
             if (!File.Exists(inputmatrix))
             {
-                Console.WriteLine("missing data file");
+                Console.WriteLine(MyStrings.MissingDataFile);
                 System.Environment.Exit(1);
             }
             else if (!File.Exists(labelfile))
@@ -45,19 +43,18 @@ namespace SVMFormat
                 Console.Write(MyStrings.missinglabels);
                 System.Environment.Exit(1);
             }
-
+            
             vectorlength = HelperFunctions.VectorLength(inputmatrix); // Get the number of features
-            string[] labels = new string[HelperFunctions.SampleSize(labelfile)]; // Calculate the number of labels and use to create storage
-
+            
             /* if the input matrix is not already in the correct format Call reformat function
             * result is that a file is written that is the LIBSVM format, expects the 
             * labels to be in a separate file
             *
-            * Reformatdata(string data, string[] labels, string fname)
+            * Reformatdata(string data, string labels, string fname)
             * 
             */
-             HelperFunctions.Reformatdata(inputmatrix, labels, outputfile, vectorlength);
-            Console.WriteLine(MyStrings.ConversionComplete);
+            int linesprocessed = HelperFunctions.Reformatdata(inputmatrix, labelfile, outputfile, vectorlength);
+            Console.WriteLine(MyStrings.ConversionComplete, linesprocessed,watch.Elapsed); 
         }
     }
 }

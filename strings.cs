@@ -10,7 +10,8 @@ namespace mystrings
         public const string Label_open_error = " Label file {0} does not exist";
         public const string format_error = "Incorrect format";
         public const string missinglabels = "Missing labels";
-        public const string ConversionComplete = "Conversion Complete";
+        public const string ConversionComplete = "Conversion Complete, {0} Lines Processed in {1}";
+        public const string MissingDataFile = "missing data file";
 
 
     }
